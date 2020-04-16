@@ -1,0 +1,94 @@
+<!Doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="home.css">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+  
+
+  <title>Snake 2</title>
+
+</head>
+
+<body>
+
+  <button class="btn btn-primary btn-lg btn-block"id="spBtn">Single Player</button>
+  <button class="btn btn-danger btn-lg btn-block"id="mpBtn">Multiplayer</button>
+
+  <div id="single-player">
+    <p>Emeka and Sebastian's very own Snake!</p>
+    <p>Controls: wasd or arrow keys</p>
+    <button class="btn btn-warning btn-lg"onclick="document.getElementById('id01').style.display='block'">More Options</button>
+
+    <div id="id01" class="modal">
+      <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">&times;</span>
+      <div class="modalcontent">
+        <div class="container">
+          <h1 style="font-family: Arial, Helvetica, sans-serif;font-size: 40px">Options</h1>
+          <p style="font-family: Arial, Helvetica, sans-serif;font-size: 25px">Enhance your gameplay!</p>
+          <div class="clearfix">
+            <button onclick="document.getElementById('id01').style.display='none'" id="rainbowBtn" type="button" class="modal-button rainbow">Rainbow</button>
+            <button onclick="document.getElementById('id01').style.display='none'" id="blocksBtn" type="button" class="modal-button blocks">Blocks</button>
+            <button onclick="document.getElementById('id01').style.display='none'" id="peaceBtn" type="button" class="modal-button peace">Peaceful</button>
+            <button id="miceNum" type="button" class="modal-button mice">
+              <input type="range" min="1" max="10" value="1" class="slider" id="numFood"> Number of Mice:
+              <span id='sliderNum'>1</span>
+            </button>
+              
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p></p>
+    <canvas id="spCanvas"></canvas>
+  </div>
+
+  <div id="multi-player">
+
+    <div class="menu">
+			<h1>Snake 2</h1>
+			<h3>How To Play</h3>
+			<ol>
+				<li>Player 1 Create a new game by entering the username</li>
+				<li>Player 2 Enter another username and the room id that is displayed on first window.</li>
+				<li>Click on join game. </li>
+			</ol>
+			<h4>Create a new Game</h4>
+        <input type="text" name="name" id="nameNew" placeholder="Enter your name" required>
+        <select>
+          <option value="reg">Regular</option>
+          <option value="blocks">Blocks</option>
+          <option value="peace">Peaceful</option>
+          <option value="multi">Multifood</option>
+          <option value="tele">Teleport</option>
+        </select>
+        <select>
+          <option value="choose">Choose Size</option>
+          <option value="small">Small</option>
+          <option value="reg">Standard</option>
+          <option value="large">Large</option>
+          <option value="huge">Huge</option>
+        </select>
+  			<button id="new">New Game</button>
+			<br><br>
+			<h4>Join an existing game</h4>
+				<input type="text" name="name" id="nameJoin" placeholder="Enter your name" required>
+				<input type="text" name="room" id="room" placeholder="Enter Game ID" required>
+				<button id="join">Join Game</button>
+		</div>
+      <div id="mpBoard" style="display: none;">
+        <h2 id="userHello"></h2>
+				<h3 id="players"></h3>
+        <button style="display: none;" id="startBtn" >Start Game</button>
+        <canvas id="mpCanvas"></canvas>
+      </div>
+  </div>
+
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.4.1.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="functionality.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
