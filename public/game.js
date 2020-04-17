@@ -128,10 +128,11 @@ function start (spOn){
     return result;
   }
 
-  $("#blocksBtn").click(() => {blocks.push(createFood())
+  $("#blocksBtn").click(() => {
+    blocks.push(createFood())
+  });
 
   let foods = []
-  console.log("Food length", foods.length, foods)
   for (let i = 0; i< numberOfFood; i++){
     foods.push(createFood())
   }
@@ -187,6 +188,7 @@ function start (spOn){
         room: roomID
       });
       snakes[playerIndex] = []
+      snake = []
       console.log(msg)
     } else {
       clearInterval(game)
@@ -269,97 +271,98 @@ function start (spOn){
     ctx.font = '45px Arial';
     ctx.fillText(score, 2*box, 1.6*box);
 
-    snakeX = snake[0].x;
-    snakeY = snake[0].y;
+    if (snake){
+      snakeX = snake[0].x;
+      snakeY = snake[0].y;
 
 
-    if( d.chng == "LEFT"){
+      if( d.chng == "LEFT"){
 
-      if (d.cur !== "RIGHT"){
-        snakeX -= box;
-        d.cur = "LEFT";
-      } else {
-        d.cur = "RIGHT";
-        snakeX += box;
+        if (d.cur !== "RIGHT"){
+          snakeX -= box;
+          d.cur = "LEFT";
+        } else {
+          d.cur = "RIGHT";
+          snakeX += box;
+        }
+
       }
+      else if( d.chng == "UP"){
 
-    }
-    else if( d.chng == "UP"){
-
-      if (d.cur !== "DOWN"){
-        snakeY -= box;
-        d.cur = "UP";
-      } else {
-        d.cur = "DOWN";
-        snakeY += box;
+        if (d.cur !== "DOWN"){
+          snakeY -= box;
+          d.cur = "UP";
+        } else {
+          d.cur = "DOWN";
+          snakeY += box;
+        }
+      } 
+      else if(d.chng == "RIGHT"){
+        
+        if (d.cur !== "LEFT"){
+          snakeX += box;
+          d.cur = "RIGHT";
+        } else {
+          d.cur = "LEFT";
+          snakeX -= box;
+        }
       }
-    } 
-    else if(d.chng == "RIGHT"){
+      else if( d.chng == "DOWN"){
+        if(d.cur !== "UP"){
+          snakeY += box;
+          d.cur = "DOWN";
+        } else {
+          d.cur = "UP";
+          snakeY -= box;
+        }
+      }
       
-      if (d.cur !== "LEFT"){
-        snakeX += box;
-        d.cur = "RIGHT";
-      } else {
-        d.cur = "LEFT";
-        snakeX -= box;
-      }
-    }
-    else if( d.chng == "DOWN"){
-      if(d.cur !== "UP"){
-        snakeY += box;
-        d.cur = "DOWN";
-      } else {
-        d.cur = "UP";
-        snakeY -= box;
-      }
-    }
-    
-    
-    //When snake eats food
-    let eatenSomething = false
-    for (let i=0; i<foods.length; i++){
+      
+      //When snake eats food
+      let eatenSomething = false
+      for (let i=0; i<foods.length; i++){
 
-      if (snakeX == foods[i].x && snakeY == foods[i].y){
-        score++
-        foods[i] = createFood();
-        if (score % 2 == 0 && blocksOn == true){
-          blocks.push(createFood());
+        if (snakeX == foods[i].x && snakeY == foods[i].y){
+          score++
+          foods[i] = createFood();
+          if (score % 2 == 0 && blocksOn == true){
+            blocks.push(createFood());
+          }
+          eatenSomething = true;
+          socket.emit("foodEaten", {foods, room:  roomID})
         }
-        eatenSomething = true;
-        socket.emit("foodEaten", {foods, room:  roomID})
+        if (eatenSomething == false && i == foods.length-1){
+          snake.pop();
+        }
       }
-      if (eatenSomething == false && i == foods.length-1){
-        snake.pop();
+      
+
+        let newHead = {
+        x: snakeX,
+        y: snakeY
       }
-    }
-    
 
-      let newHead = {
-      x: snakeX,
-      y: snakeY
-    }
+    if(!spOn || !peaceOn){
+      // game over : hits barrier
 
-  console.log("peaceOn: ", peaceOn)
-  if(peaceOn == false){
-    // game over : hits barrier
+    if(snakeX < 0 || snakeX > sizeX - box || snakeY < 0 || snakeY > sizeY - box || collision(newHead,snake) || collision(newHead,blocks)){
+        console.log("Hit wall")
+        gameOver()
+      }
 
-  if(snakeX < 0 || snakeX > sizeX - box || snakeY < 0 || snakeY > sizeY - box || collision(newHead,snake) || collision(newHead,blocks)){
-      console.log("Hit wall")
-      gameOver()
-    }
-
-    for(let i=0; i<snakes.length; i++){
-      if(playerIndex !== i){
-        if(collision(newHead, snakes[i])){
-          gameOver()
+      for(let i=0; i<snakes.length; i++){
+        if(playerIndex !== i){
+          if(collision(newHead, snakes[i])){
+            gameOver()
+          }
         }
       }
     }
-  }
-    
-    snake.unshift(newHead);
+      
+      snake.unshift(newHead);
 
-    socket.emit("movementMade", { name, playerIndex, snake, room: roomID})
+      socket.emit("movementMade", { name, playerIndex, snake, room: roomID})
+    }
   } //draw ends
 
   if (spOn){
@@ -456,14 +459,14 @@ function start (spOn){
 
     socket.on('gameHasStarted', (data) => {
       
-       const message = `${name}, the game has begun!`;
+      const message = `${name}, the game has begun!`;
       $('#userHello').html(message);
-      $('#startBtn').hide()
+      $('#startBtn').hide();
 
       snakes = data.snakes;
       snake = data.snakes[playerIndex];
       foods = data.foods;
-      numnberOfFood = data.numberOfFood;
+      numberOfFood = data.numberOfFood;
       peaceOn = data.peaceOn;
       blocks = data.blocks;
       blocksOn = data.blocksOn;
@@ -490,7 +493,8 @@ function start (spOn){
     // If the other player wins, this event is received. Notify user game has ended.
     socket.on('gameEnd', (data) => {
       console.log(data.message);
-      snakes[data.playerIndex] = []
+      snakes[data.playerIndex] = [];
+      snake = [];
 
       let losers = 0
       for (snake of snakes){
